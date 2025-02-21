@@ -2,9 +2,11 @@ extends Node
 
 ## A node that contains methods to make development faster.
 
+var _playback = null
+
 ## Get the difference in [b]days[/b], [b]weeks[/b], [b]months[/b] and [b]years[/b] between a date and another.[br]
 ## [codeblock]
-## var date_difference = GTools.date_difference_iso_8601("2022-02-11", "2022-02-04")
+## var date_difference = GTools.date_difference_iso_8601("2022-02-04", "2022-02-11")
 ## print(date_difference) # Prints { "days": 7, "weeks": 1, "months": 0, "years": 0 }
 ## [/codeblock]
 func date_difference_iso_8601(date_1: String, date_2: String) -> Dictionary:
@@ -267,10 +269,14 @@ func img_to_texture(img_path: String) -> ImageTexture:
 		printerr('%s is invalid' % img_path)
 		return null
 
+## Plays a song globally.[br]
+## [param vol] is linear, therefore, 1 = 0 decibels.
+## [codeblock]GTools.play_global_mus("path/to/song.mp3", 1, "Music") # Will play a song in the audio bus "Music".
 func play_global_mus(music: String, vol: float = 1, bus: String = ''):
 	var music_node = AudioStreamPlayer.new()
-	if load(music) == music_node.stream:
-		printerr("tried to play %s, but it is already playing" % music)
+	music_node.name = "music"
+	if grab_music_node():
+		printerr("another music instance is running, stop it before trying to play another song")
 		return
 	add_child(music_node)
 	music_node.stream = load(music)
@@ -284,3 +290,86 @@ func play_global_mus(music: String, vol: float = 1, bus: String = ''):
 	music_node.volume_db = linear_to_db(vol)
 	music_node.play()
 	#print("playing song %s with %s volume" % [music, vol])
+
+## Will stop global music if playing.
+func stop_global_mus():
+	var node = grab_music_node()
+	if node:
+		node.stop()
+		node.queue_free()
+	else:
+		printerr('music node not found, is music playing?')
+
+## Will pause global music if playing.
+func pause_global_mus():
+	var node = grab_music_node()
+	if node:
+		if node.playing:
+			_playback = node.get_playback_position()
+			node.stop()
+		else:
+			printerr("can not pause music as music is not playing")
+	else:
+		printerr('music node not found, is music playing?')
+
+## Will resume global music if playing.
+func resume_global_mus():
+	var node = grab_music_node()
+	if node:
+		if _playback:
+			node.play()
+			global_mus_jump_to(_playback)
+			_playback = null
+		else:
+			return
+	else:
+		printerr('music node not found, is music playing?')
+
+## Changes the position of the global music.
+func global_mus_jump_to(seek: float):
+	var node = grab_music_node()
+	if node:
+		node.seek(seek)
+	else:
+		printerr('music node not found, is music playing?')
+
+## Returns the music node.[br]
+## Will return [code]null[/code] if music is not playing.
+func grab_music_node() -> AudioStreamPlayer:
+	if get_child_count() > 0:
+		for i in get_children():
+			if i is AudioStreamPlayer:
+				if i.name == "music":
+					return i
+	return null
+
+## Waits until the time runs out.[br]
+## [param time] uses ms, therefore, 1000ms = 1s.
+## [codeblock]
+## await GTools.wait(1000) # Will wait for 1 second before printing 'Hello World!'
+## print("Hello World!")
+## [/codeblock]
+func wait(time: int) -> void:
+	var timer = Timer.new()
+	timer.wait_time = time / 1000
+	timer.name = str(random_id(100, 500))
+	
+	add_child(timer)
+	timer.start()
+	
+	await timer.timeout
+	timer.stop()
+	timer.queue_free()
+	return
+
+## Returns a random integer between [param min] and [param max].[br]
+## Exceptions can be added.[br]
+## [codeblock]
+## GTools.random_id(1,100,[50]) # Will give a number from 1 to 100, but will not give 50.
+## [/codeblock]
+func random_id(min: int, max: int, exceptions: Array = []) -> int:
+	if len(exceptions) >= (max - min + 1):
+		printerr("'exceptions' contains all values that can be possibly generated, returning -1")
+		return -1
+	var id = randi_range(min,max)
+	return id if id not in exceptions else random_id(min,max,exceptions)
