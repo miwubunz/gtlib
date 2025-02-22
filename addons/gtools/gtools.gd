@@ -365,7 +365,7 @@ func wait(time: int) -> void:
 ## Returns a random integer between [param min] and [param max].[br]
 ## Exceptions can be added.[br]
 ## [codeblock]
-## GTools.random_id(1,100,[50]) # Will give a number from 1 to 100, but will not give 50.
+## GTools.random_id(1,100,[50]) # Will give a number from 1 to 100, but will avoid 50.
 ## [/codeblock]
 func random_id(min: int, max: int, exceptions: Array = []) -> int:
 	if len(exceptions) >= (max - min + 1):
