@@ -373,3 +373,20 @@ func random_id(min: int, max: int, exceptions: Array = []) -> int:
 		return -1
 	var id = randi_range(min,max)
 	return id if id not in exceptions else random_id(min,max,exceptions)
+
+## @experimental: lacks some markdown features.
+## Convert [b]BBCode[/b] to [b]markdown[/b].[br]
+## [codeblock]GTools.bbcode_to_markdown("[b]This is bold.[/b]") # Returns "**This is bold.**"[/codeblock]
+func bbcode_to_markdown(string: String, lang: String = "") -> String:
+	var map := {
+		"[b]": "**", "[/b]": "**",
+		"[i]": "*", "[/i]": "*",
+		"[br]": "\n",
+		"[codeblock]": "```%s\n" % lang, "[/codeblock]": "\n```"
+	}
+	
+	var result = string
+	
+	for i in map:
+		result = result.replace(i, map[i])
+	return result

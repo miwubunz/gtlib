@@ -16,3 +16,4 @@ data_*/
 mono_crash.*.json
 
 main
+.docs_imported
