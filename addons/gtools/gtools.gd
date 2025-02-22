@@ -312,7 +312,7 @@ func pause_global_mus():
 	else:
 		printerr('music node not found, is music playing?')
 
-## Will resume global music if playing.
+## Will resume global music if exists.
 func resume_global_mus():
 	var node = grab_music_node()
 	if node:
