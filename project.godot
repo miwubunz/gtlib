@@ -10,17 +10,17 @@ config_version=5
 
 [application]
 
-config/name="gtools"
+config/name="gtlib"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 config/icon="res://icon.svg"
 
 [autoload]
 
-GTLib="*res://addons/gtools/gtlib.gd"
+GTLib="*res://addons/gtlib/gtlib.gd"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/gtools/plugin.cfg")
+enabled=PackedStringArray("res://addons/gtlib/plugin.cfg")
 
 [rendering]
 

@@ -459,6 +459,60 @@ func set_mouse_filter(node: Node, filter : Control.MouseFilter, children: bool =
 				if "mouse_filter" in i:
 					i.mouse_filter = filter
 
+## Capitalizes the first letter of a string.
+## [codeblock]
+## GTLib.capitalize("yo world") # Returns "Yo world"
+func capitalize(string: String) -> String:
+	string[0] = string[0].to_upper()
+	return string
+
+## Converts a string to an url-friendly string.
+## [codeblock]
+## var string = GTLib.slugify("Hello World ♥", "_", {"♥": "love"})
+## print(string) # Will print "hello_world_love"
+## [/codeblock]
+func slugify(string: String, delimiter: String = "-", extend: Dictionary = {}) -> String:
+	var index = 0
+	var result = ''
+	var available = []
+	for i in range(97, 123):
+		available.append(char(i))
+	for i in range(48, 58):
+		available.append(char(i))
+	#print(available)
+	
+	while index < string.length():
+		if string[index] == " ":
+			result += delimiter
+			index += 1
+			continue
+		elif string[index] in extend:
+			if !_are_in(string[index], extend, available):
+				index += 1
+				continue
+			result += extend[string[index]].to_lower()
+			index += 1
+			continue
+		elif string[index] not in available:
+			if string[index].to_lower() in available:
+				result += string[index].to_lower()
+				index += 1
+				continue
+			else:
+				index += 1
+				continue
+		
+		result += string[index]
+		index += 1
+		
+	return result
+
+func _are_in(string, dict, array):
+	for i in dict[string]:
+		if i.to_lower() not in array:
+			return false
+	return true
+
 func _is_type(node, types):
 	for e in range(types.size()):
 		if node.get_class() == types[e]:
