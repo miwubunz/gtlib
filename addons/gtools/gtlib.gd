@@ -1,16 +1,19 @@
 extends Node
 
-## A node that contains methods to make development faster.
+## A node that contains methods to make certain stuff faster.
 
 var _playback = null
 
 ## Get the difference in [b]days[/b], [b]weeks[/b], [b]months[/b] and [b]years[/b] between a date and another.[br]
 ## [codeblock]
-## var date_difference = GTools.date_difference_iso_8601("2022-02-04", "2022-02-11")
+## var date_difference = GTLib.date_difference_iso_8601("2022-02-04", "2022-02-11")
 ## print(date_difference) # Prints { "days": 7, "weeks": 1, "months": 0, "years": 0 }
 ## [/codeblock]
 func date_difference_iso_8601(date_1: String, date_2: String) -> Dictionary:
 	var date_split = [date_1.split('-'), date_2.split('-')]
+	for i in range(date_split.size()):
+		while date_split[i].size() < 3:
+			date_split[i].append("1")
 	
 	var unix_1 = Time.get_unix_time_from_datetime_dict({
 		"years": date_split[0][0],
@@ -36,10 +39,54 @@ func date_difference_iso_8601(date_1: String, date_2: String) -> Dictionary:
 		"years": years
 	}
 
-## @experimental: [b]this feature has not been polished, expect misbehaviour.[/b]
+## Converts [b]ms[/b] to [b]seconds[/b], [b]minutes[/b] and [b]hours.[/b]
+## [codeblock]
+## var time = GTLib.time_from_ms(5000)
+## print(time) # Will print { "seconds": 5, "minutes": 0, "hours": 0 }
+## [/codeblock]
+func time_from_ms(time_ms: int) -> Dictionary:
+	var seconds = int(time_ms / 1000) % 60
+	var minutes = int(time_ms / (1000 * 60)) % 60
+	var hours = int(time_ms / (1000 * 60 * 60))
+	
+	return {
+		"seconds": seconds,
+		"minutes": minutes,
+		"hours": hours
+	}
+
+## Get the difference in [b]hours[/b], [b]minutes[/b] and [b]seconds[/b] between a 24 hour timestamp and another.[br]
+## [codeblock]
+## var time_difference = GTLib.time_difference_24h("06:25:21", "16:24:39")
+## print(time_difference) # Will print { "hours": 9, "minutes": 59, "seconds": 18 }
+## [/codeblock]
+func time_difference_24h(time_1: String, time_2: String) -> Dictionary:
+	var time_split = [time_1.split(":"), time_2.split(":")]
+	
+	for i in range(time_split.size()):
+		while time_split[i].size() < 3:
+			time_split[i].append("00")
+
+	var time1 = (int(time_split[0][0]) * 3600) + (int(time_split[0][1]) * 60) + int(time_split[0][2])
+	var time2 = (int(time_split[1][0]) * 3600) + (int(time_split[1][1]) * 60) + int(time_split[1][2])
+	
+	if time2 < time1:
+		time2 += 86400
+	
+	var e = time2 - time1
+	var rem = e % 3600
+	var j = [e / 3600, rem / 60, rem % 60]
+	
+	return {
+		"hours": j[0],
+		"minutes": j[1],
+		"seconds": j[2]
+	}
+
+## @experimental: [b]this feature has not been polished nor finished, expect misbehaviour.[/b]
 ## Converts [b]markdown[/b] to [b]BBCode[/b].
 ## [br]
-## [codeblock]GTools.markdown_to_bbcode("**This is bold.**") # Returns "[b]This is bold.[/b]"[/codeblock]
+## [codeblock]GTLib.markdown_to_bbcode("**This is bold.**") # Returns "[b]This is bold.[/b]"[/codeblock]
 func markdown_to_bbcode(string: String) -> String:
 	if string.contains("****"):
 		string = string.replace("****", "")
@@ -187,7 +234,7 @@ func markdown_to_bbcode(string: String) -> String:
 
 ## Makes an HTTPRequest and returns the response in a dictionary.[br]
 ## [codeblock]
-## var data = await GTools.fetch("https://httpbin.org/get")
+## var data = await GTLib.fetch("https://httpbin.org/get")
 ## print(data.body.get_string_from_utf8()) # Returns the content
 ## [/codeblock]
 func fetch(url: String = "", headers: PackedStringArray = PackedStringArray(), method: HTTPClient.Method = 0, request_data: String = "") -> Dictionary:
@@ -205,8 +252,8 @@ func fetch(url: String = "", headers: PackedStringArray = PackedStringArray(), m
 		"body": response[3]
 	}
 
-## Returns [code]true[/code] if the character provided is uppercase.[br]
-## [codeblock]GTools.is_upper("A") # Returns true[/codeblock]
+## Returns [code]true[/code] if the provided character is uppercase.[br]
+## [codeblock]GTLib.is_upper("A") # Returns true[/codeblock]
 func is_upper(char: String) -> bool:
 	if char.length() > 0:
 		if char[0].to_upper() == char[0]:
@@ -252,7 +299,7 @@ func get_recommended_resolutions(follow_project_size: bool = false) -> Array:
 
 ## Converts an image to a texture.[br]
 ## [codeblock]
-## var texture = GTools.img_to_texture("path/to/image.png")
+## var texture = GTLib.img_to_texture("path/to/image.png")
 ## var txr_rect = TextureRect.new()
 ## txr_rect.texture = texture # will assign the texture
 ## [/codeblock]
@@ -270,8 +317,8 @@ func img_to_texture(img_path: String) -> ImageTexture:
 		return null
 
 ## Plays a song globally.[br]
-## [param vol] is linear, therefore, 1 = 0 decibels.
-## [codeblock]GTools.play_global_mus("path/to/song.mp3", 1, "Music") # Will play a song in the audio bus "Music".
+## [param vol] is a linear volume value, therefore, 1 = 0 decibels.
+## [codeblock]GTLib.play_global_mus("path/to/song.mp3", 1, "Music") # Will play a song in the audio bus "Music".
 func play_global_mus(music: String, vol: float = 1, bus: String = ''):
 	var music_node = AudioStreamPlayer.new()
 	music_node.name = "music"
@@ -312,7 +359,7 @@ func pause_global_mus():
 	else:
 		printerr('music node not found, is music playing?')
 
-## Will resume global music if exists.
+## Will resume global music if it exists.
 func resume_global_mus():
 	var node = grab_music_node()
 	if node:
@@ -346,7 +393,7 @@ func grab_music_node() -> AudioStreamPlayer:
 ## Waits until the time runs out.[br]
 ## [param time] uses ms, therefore, 1000ms = 1s.
 ## [codeblock]
-## await GTools.wait(1000) # Will wait for 1 second before printing 'Hello World!'
+## await GTLib.wait(1000) # Will wait for 1 second before printing 'Hello World!'
 ## print("Hello World!")
 ## [/codeblock]
 func wait(time: int) -> void:
@@ -364,10 +411,11 @@ func wait(time: int) -> void:
 
 ## Returns a random integer between [param min] and [param max].[br]
 ## Exceptions can be added.[br]
+## Will return [code]-1[/code] if [param exceptions] covers all possible numbers.
 ## [codeblock]
-## GTools.random_id(1,100,[50]) # Will give a number from 1 to 100, but will avoid 50.
+## GTLib.random_id(1, 100, [50]) # Will give a number from 1 to 100, but will avoid 50.
 ## [/codeblock]
-func random_id(min: int, max: int, exceptions: Array = []) -> int:
+func random_id(min: int, max: int, exceptions: PackedInt32Array = []) -> int:
 	if len(exceptions) >= (max - min + 1):
 		printerr("'exceptions' contains all values that can be possibly generated, returning -1")
 		return -1
@@ -376,7 +424,7 @@ func random_id(min: int, max: int, exceptions: Array = []) -> int:
 
 ## @experimental: lacks some markdown features.
 ## Convert [b]BBCode[/b] to [b]markdown[/b].[br]
-## [codeblock]GTools.bbcode_to_markdown("[b]This is bold.[/b]") # Returns "**This is bold.**"[/codeblock]
+## [codeblock]GTLib.bbcode_to_markdown("[b]This is bold.[/b]") # Returns "**This is bold.**"[/codeblock]
 func bbcode_to_markdown(string: String, lang: String = "") -> String:
 	var map := {
 		"[b]": "**", "[/b]": "**",
@@ -390,3 +438,29 @@ func bbcode_to_markdown(string: String, lang: String = "") -> String:
 	for i in map:
 		result = result.replace(i, map[i])
 	return result
+
+## Sets a mouse filter to a node and its children (optional).[br]
+## Exceptions can be added.
+## [codeblock]
+## GTLib.set_mouse_filter($obj, Control.MOUSE_FILTER_IGNORE, true, ["Button"])
+## # Sets "ignore" filter for obj and its children, except Buttons.
+## [/codeblock]
+func set_mouse_filter(node: Node, filter : Control.MouseFilter, children: bool = false, exceptions: PackedStringArray = []) -> void:
+	if !_is_type(node, exceptions):
+		if "mouse_filter" in node:
+			node.mouse_filter = filter
+	if children:
+		if node.get_child_count() > 0:
+			for i in node.get_children():
+				if i.get_child_count() > 0:
+					set_mouse_filter(i, filter, children, exceptions)
+				if _is_type(i, exceptions):
+					continue
+				if "mouse_filter" in i:
+					i.mouse_filter = filter
+
+func _is_type(node, types):
+	for e in range(types.size()):
+		if node.get_class() == types[e]:
+			return true
+	return false
