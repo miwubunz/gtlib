@@ -228,16 +228,12 @@ func markdown_to_bbcode(string: String) -> String:
 
 	while stack.size() > 0:
 		var last_tag = stack.pop_back()
-		if last_tag == "b":
-			result += "[/b]"
-		elif last_tag == "i":
-			result += "[/i]"
-		elif last_tag == "b+i":
-			result += "[/i][/b]"
-		elif last_tag == "code":
-			result += "[/code]"
-		elif last_tag == "heading":
-			result += "[/font_size]"
+		match last_tag:
+			"b": result += "[/b]"
+			"i": result += "[/i]"
+			"b+i": result += '[/i][/b]'
+			"code": result += "[/code]"
+			"heading": result += "[/font_size]"
 
 	return result
 
