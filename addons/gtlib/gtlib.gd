@@ -407,7 +407,7 @@ func grab_music_node() -> AudioStreamPlayer:
 ## [/codeblock]
 func wait(time: int) -> void:
 	var timer = Timer.new()
-	timer.wait_time = time / 1000
+	timer.wait_time = float(time) / float(1000)
 	timer.name = str(random_id(100, 500))
 	
 	add_child(timer)
@@ -508,6 +508,28 @@ func slugify(string: String, delimiter: String = "-", extend: Dictionary = {}) -
 		index += 1
 		
 	return result
+
+#func smooth_value(text_node: Node, from: int, to: int, speed: float, smooth: bool):
+	#if "text" not in text_node:
+		#printerr("node provided does not have text property")
+		#return
+	#
+	#var sp = speed
+	#
+	#while from <= to:
+		#from += 1
+		#if smooth:
+			#var distance = abs(to - from)
+			#sp = min(500, (100 - distance)) * 0.5
+			#print(sp)
+		#if from < to:
+			#text_node.text = str(from)
+			#await GTLib.wait(sp)
+		#else:
+			#text_node.text = str(to)
+			#return
+	#return
+
 
 func _are_in(string, dict, array):
 	for i in dict[string]:
