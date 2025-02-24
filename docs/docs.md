@@ -156,15 +156,6 @@ GTLib.set_mouse_filter($obj, Control.MOUSE_FILTER_IGNORE, true, ["Button"])
 
 ```
 
-# capitalize
-
-Capitalizes the first letter of a string.
-```gdscript
-
-GTLib.capitalize("yo world") # Returns "Yo world"
-
-```
-
 # slugify
 
 Converts a string to an url-friendly string.
