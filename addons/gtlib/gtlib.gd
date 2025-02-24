@@ -128,6 +128,15 @@ func markdown_to_bbcode(string: String) -> String:
 				stack.append("i")
 			index += 1
 			continue
+		elif string[index] == "_":
+			if stack.size() > 0 and stack[-1] == "i":
+				result += "[/i]"
+				stack.pop_back()
+			else:
+				result += "[i]"
+				stack.append("i")
+			index += 1
+			continue
 
 		# code
 		elif string[index] == "`":
