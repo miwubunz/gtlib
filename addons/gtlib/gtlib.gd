@@ -468,13 +468,6 @@ func set_mouse_filter(node: Node, filter : Control.MouseFilter, children: bool =
 				if "mouse_filter" in i:
 					i.mouse_filter = filter
 
-## Capitalizes the first letter of a string.
-## [codeblock]
-## GTLib.capitalize("yo world") # Returns "Yo world"
-func capitalize(string: String) -> String:
-	string[0] = string[0].to_upper()
-	return string
-
 ## Converts a string to an url-friendly string.
 ## [codeblock]
 ## var string = GTLib.slugify("Hello World ♥", "_", {"♥": "love"})
