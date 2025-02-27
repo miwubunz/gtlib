@@ -32,12 +32,28 @@ print(time_difference) # Will print { "hours": 9, "minutes": 59, "seconds": 18 }
 
 # markdown_to_bbcode
 
-`experimental:` **this feature has not been polished nor finished, expect misbehaviour.**\
 Converts **markdown** to **BBCode**.
 ```gdscript
 
 GTLib.markdown_to_bbcode("**This is bold.**") # Returns "[b]This is bold.[/b]"
 
+```
+
+# node
+
+Returns a node from the scene tree by following a custom path format using `" > "` as a separator.\
+By default, it will get nodes from the root node.\
+`starting_node` defines the node it will start getting nodes from.\
+Will return `null` if a node doesn't exist.
+```gdscript
+# Assuming a scene structure like this:
+┖ root
+   ┖╴player
+       ┠ camera 
+       ┖ weapon
+```
+```gdscript
+var found_node = node("player > camera") # Will return the camera node
 ```
 
 # fetch
@@ -137,7 +153,7 @@ print("Hello World!")
 
 # bbcode_to_markdown
 
- `experimental:` lacks some markdown features.\
+ `experimental:` lacks **heading** and **quoteblocks**.\
  Convert **BBCode** to **markdown**.
  ```gdscript
 

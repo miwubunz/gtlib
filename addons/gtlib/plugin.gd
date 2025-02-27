@@ -4,8 +4,10 @@ extends EditorPlugin
 const NAME = 'GTLib'
 
 func _enter_tree() -> void:
-	add_autoload_singleton(NAME, get_script().get_path().replace("plugin.gd", "gtlib.gd"))
+	if not ProjectSettings.has_setting("autoload/GTLib"):
+		add_autoload_singleton(NAME, get_script().get_path().replace("plugin.gd", "gtlib.gd"))
 
 
 func _exit_tree() -> void:
-	remove_autoload_singleton(NAME)
+	if ProjectSettings.has_setting("autoload/GTLib"):
+		remove_autoload_singleton(NAME)
