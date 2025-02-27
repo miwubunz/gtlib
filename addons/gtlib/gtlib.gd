@@ -83,159 +83,49 @@ func time_difference_24h(time_1: String, time_2: String) -> Dictionary:
 		"seconds": j[2]
 	}
 
-## @experimental: [b]this feature has not been polished nor finished, expect misbehaviour.[/b]
+
 ## Converts [b]markdown[/b] to [b]BBCode[/b].
 ## [br]
 ## [codeblock]GTLib.markdown_to_bbcode("**This is bold.**") # Returns "[b]This is bold.[/b]"[/codeblock]
 func markdown_to_bbcode(string: String) -> String:
-	if string.contains("****"):
-		string = string.replace("****", "")
-	var result = ""
-	var index = 0
-	var stack = []
-	var heading = false
-
-	while index < string.length():
-		# bold italics
-		if string.substr(index, 3) == "***":
-			if stack.size() > 0 and stack[-1] == "b+i":
-				result += "[/i][/b]"
-				stack.pop_back()
-			else:
-				result += "[b][i]"
-				stack.append("b+i")
-			index += 3
-			continue
-
-		# bold
-		elif string.substr(index, 2) == "**":
-			if stack.size() > 0 and stack[-1] == "b":
-				result += "[/b]"
-				stack.pop_back()
-			else:
-				result += "[b]"
-				stack.append("b")
-			index += 2
-			continue
-
-		# italics
-		elif string[index] == "*":
-			if stack.size() > 0 and stack[-1] == "i":
-				result += "[/i]"
-				stack.pop_back()
-			else:
-				result += "[i]"
-				stack.append("i")
-			index += 1
-			continue
-		elif string[index] == "_":
-			if stack.size() > 0 and stack[-1] == "i":
-				result += "[/i]"
-				stack.pop_back()
-			else:
-				result += "[i]"
-				stack.append("i")
-			index += 1
-			continue
-
-		# code
-		elif string[index] == "`":
-			if stack.size() > 0 and stack[-1] == "code":
-				result += "[/code]"
-				stack.pop_back()
-			else:
-				result += "[code]"
-				stack.append("code")
-			index += 1
-			continue
-
-		# heading
-		elif string[index] == "#":
-			if stack.size() > 0 and stack[-1] == "heading":
-				result += "[/font_size]"
-				stack.pop_back()
-				heading = false
-			else:
-				result += "[font_size=50]"
-				stack.append("heading")
-				heading = true
-			index += 1
-			continue
-
-		# newline
-		elif string[index] == "\n" and heading:
-			if stack.size() > 0 and stack[-1] == "heading":
-				result += "[/font_size]"
-				stack.pop_back()
-				heading = false
-
-		# images
-		elif string[index] == "!" and index + 1 < string.length() and string[index + 1] == "[":
-			index += 2
-			var img = ""
-			var on_parentheses = false
-
-			while index < string.length():
-				if not on_parentheses:
-					if string[index] == "]":
-						index += 1
-						continue
-					elif string[index] == "(":
-						on_parentheses = true
-						index += 1
-						continue
-				else:
-					if string[index] == ")":
-						on_parentheses = false
-						index += 1
-						break
-					img += string[index]
-				index += 1
-
-			result += "[img]%s[/img]" % img
-			continue
-
-		# links
-		elif string[index] == "[":
-			index += 1
-			var title = ""
-			var url = ""
-			var on_parentheses = false
-
-			while index < string.length():
-				if not on_parentheses:
-					if string[index] == "]":
-						index += 1
-						continue
-					elif string[index] == "(":
-						on_parentheses = true
-						index += 1
-						continue
-					title += string[index]
-				else:
-					if string[index] == ")":
-						on_parentheses = false
-						index += 1
-						break
-					url += string[index]
-				index += 1
-
-			result += "[url=%s]%s[/url]" % [url, title]
-			continue
-
-		result += string[index]
-		index += 1
-
-	while stack.size() > 0:
-		var last_tag = stack.pop_back()
-		match last_tag:
-			"b": result += "[/b]"
-			"i": result += "[/i]"
-			"b+i": result += '[/i][/b]'
-			"code": result += "[/code]"
-			"heading": result += "[/font_size]"
-
-	return result
+	var rules = [
+		# images: ![alt](url) -> [img]url[/img]
+		{"pattern": "!\\[(.*?)\\]\\((.*?)\\)", "replace": "[img]$2[/img]"},
+		# hyperlink: [text](url) -> [url=url]text[/url]
+		{"pattern": "\\[(.+?)\\]\\((.+?)\\)", "replace": "[url=$2]$1[/url]"},
+		# heading 1: # text -> [font_size=50]text[/font_size]
+		{"pattern": "^# (.+)$", "replace": "[b][font_size=50]$1[/font_size][/b]"},
+		# heading 2: ## text -> [font_size=45]text[/font_size]
+		{"pattern": "^## (.+)$", "replace": "[b][font_size=45]$1[/font_size][/b]"},
+		# heading 3: ### text -> [font_size=40]text[/font_size]
+		{"pattern": "^### (.+)$", "replace": "[b][font_size=40]$1[/font_size][/b]"},
+		# bold italics: ***text*** -> [b][i]text[/i][/b]
+		{"pattern": "\\*\\*\\*(.+?)\\*\\*\\*", "replace": "[b][i]$1[/i][/b]"},
+		# strikethrough: ~~text~~ -> [s]text[/s]
+		{"pattern": "\\~\\~(.+?)\\~\\~", "replace": "[s]$1[/s]"},
+		# bold: **text** or __text__ -> [b]text[/b]
+		{"pattern": "\\*\\*(.+?)\\*\\*", "replace": "[b]$1[/b]"},
+		{"pattern": "\\_\\_(.+?)\\_\\_", "replace": "[b]$1[/b]"},
+		# italic: *text* or _text_ -> [i]text[/i]
+		{"pattern": "\\*(.+?)\\*", "replace": "[i]$1[/i]"},
+		{"pattern": "\\_(.+?)\\_", "replace": "[i]$1[/i]"},
+		
+		# codeblock: ```code``` -> [codeblock]code[/codeblock]
+		#{"pattern": "```(.*?)```", "replace": "[codeblock]$1[/codeblock]"},
+		
+		# code: `code` -> [code]code[/code]
+		{"pattern": "`(.+?)`", "replace": "[code]$1[/code]"},
+	]
+	
+	for i in rules:
+		var regex = RegEx.new()
+		var err = regex.compile(i["pattern"])
+		if err != OK:
+			printerr("error while compiling!")
+			return ""
+		string = regex.sub(string, i["replace"], true)
+	
+	return string
 
 ## Makes an HTTPRequest and returns the response in a dictionary.[br]
 ## [codeblock]
@@ -427,22 +317,42 @@ func random_id(min: int, max: int, exceptions: PackedInt32Array = []) -> int:
 	var id = randi_range(min,max)
 	return id if id not in exceptions else random_id(min,max,exceptions)
 
-## @experimental: lacks some markdown features.
+## @experimental: lacks [b]headings[/b] and [b]quoteblocks[/b].
 ## Convert [b]BBCode[/b] to [b]markdown[/b].[br]
 ## [codeblock]GTLib.bbcode_to_markdown("[b]This is bold.[/b]") # Returns "**This is bold.**"[/codeblock]
 func bbcode_to_markdown(string: String, lang: String = "") -> String:
-	var map := {
-		"[b]": "**", "[/b]": "**",
-		"[i]": "*", "[/i]": "*",
-		"[br]": "\n",
-		"[codeblock]": "```%s\n" % lang, "[/codeblock]": "\n```"
-	}
+	var rules = [
+		# images: [img]url[/img] -> ![alt](url)
+		{"pattern": "\\[img](.+?)\\[/img]", "replace": "![]($1)"},
+		# hyperlink: [url=url]text[/url] -> [text](url)
+		{"pattern": "\\[url=(.+?)](.+?)\\[/url]", "replace": "[$2]($1)"},
+		# bold italics: [b][i]text[/i][/b] -> ***text***
+		{"pattern": "\\[b]\\[i](.+?)\\[/i]\\[/b]", "replace": "***$1***"},
+		# strikethrough: [s]text[/s] -> ~~text~~
+		{"pattern": "\\[s](.+?)\\[/s]", "replace": "~~$1~~"},
+		# bold: [b]text[/b] -> **text**
+		{"pattern": "\\[b](.+?)\\[/b]", "replace": "**$1**"},
+		# italic: [i]text[/i] -> *text*
+		{"pattern": "\\[i](.+?)\\[/i]", "replace": "*$1*"},
+		# codeblock: [codeblock]code[/codeblock] -> 
+		# ```lang 
+		# code
+		# ```
+		{"pattern": "\\[codeblock](.+?)\\[/codeblock]", "replace": "```%s\n$1\n```" % lang},
+		# code: [code]code[/code] -> `code`
+		{"pattern": "\\[code](.+?)\\[/code]", "replace": "`$1`"},
+	]
+
 	
-	var result = string
+	for i in rules:
+		var regex = RegEx.new()
+		var err = regex.compile(i["pattern"])
+		if err != OK:
+			printerr("error while compiling!")
+			return ""
+		string = regex.sub(string, i["replace"], true)
 	
-	for i in map:
-		result = result.replace(i, map[i])
-	return result
+	return string
 
 ## Sets a mouse filter to a node and its children (optional).[br]
 ## Exceptions can be added.
@@ -525,6 +435,37 @@ func slugify(string: String, delimiter: String = "-", extend: Dictionary = {}) -
 			#text_node.text = str(to)
 			#return
 	#return
+
+## Returns a node from the scene tree by following a custom path format using [code]" > "[/code] as a separator.[br]
+## By default, it will get nodes from the root node.[br]
+## [param starting_node] defines the node it will start getting nodes from.[br]
+## Will return [code]null[/code] if a node doesn't exist.[br]
+## 
+## [codeblock]
+## # Assuming a scene structure like this:
+## ┖ root
+##    ┖╴player
+##       ┠ camera
+##       ┖ weapon
+## [/codeblock]
+## [codeblock]
+## var found_node = node("player > camera") # Will return the camera node
+## [/codeblock]
+func node(path: String, starting_node: Node = get_tree().current_scene):
+	#print(starting_node)
+	var nodes = path.split(" > ")
+	var prev_node = starting_node
+	for i in nodes:
+		if prev_node:
+			prev_node = prev_node.get_node(i)
+			if !prev_node:
+				printerr("'%s' not found!" % i)
+				return null
+		else:
+			return null
+			
+	
+	return prev_node
 
 
 func _are_in(string, dict, array):
