@@ -30,8 +30,6 @@ func date_difference_iso_8601(date_1: String, date_2: String) -> Dictionary:
 	var unix_1 = Time.get_unix_time_from_datetime_dict(date_1_dict)
 	var unix_2 = Time.get_unix_time_from_datetime_dict(date_2_dict)
 
-	#print(unix_1)
-
 	if unix_1 == 0 || unix_2 == 0:
 		printerr("invalid date!")
 		return {}
@@ -50,7 +48,7 @@ func date_difference_iso_8601(date_1: String, date_2: String) -> Dictionary:
 		"days": days,
 		"weeks": weeks,
 		"months": months,
-		"years": years
+		"years": years,
 	}
 
 
@@ -67,7 +65,7 @@ func time_from_ms(time_ms: int) -> Dictionary:
 	return {
 		"seconds": seconds,
 		"minutes": minutes,
-		"hours": hours
+		"hours": hours,
 	}
 
 ## Get the difference in [b]hours[/b], [b]minutes[/b] and [b]seconds[/b] between a 24 hour timestamp and another.[br]
@@ -77,7 +75,6 @@ func time_from_ms(time_ms: int) -> Dictionary:
 ## [/codeblock]
 func time_difference_24h(time_1: String, time_2: String) -> Dictionary:
 	var time_split = [time_1.split(":"), time_2.split(":")]
-	
 	
 	for i in range(time_split.size()):
 		while time_split[i].size() < 3:
@@ -96,9 +93,8 @@ func time_difference_24h(time_1: String, time_2: String) -> Dictionary:
 	return {
 		"hours": j[0],
 		"minutes": j[1],
-		"seconds": j[2]
+		"seconds": j[2],
 	}
-
 
 ## Converts [b]markdown[/b] to [b]BBCode[/b].
 ## [br]
@@ -154,13 +150,12 @@ func fetch(url: String = "", headers: PackedStringArray = PackedStringArray(), m
 	req.request(url, headers, method, request_data)
 	
 	var response = await req.request_completed
-	#print(response)
 	req.queue_free()
 	return {
 		"result": response[0],
 		"status_code": response[1],
 		"headers": response[2],
-		"body": response[3]
+		"body": response[3],
 	}
 
 ## Returns [code]true[/code] if the provided character is uppercase.[br]
@@ -185,7 +180,13 @@ func get_recommended_resolutions(follow_project_size: bool = false) -> Array:
 	var resolutions = []
 	
 	if !follow_project_size:
-		resolutions = [display / 3.0, display / 2.5, display / 2.0, display / 1.5, display]
+		resolutions = [
+			display / 3.0,
+			display / 2.5,
+			display / 2.0,
+			display / 1.5,
+			display,
+		]
 	else:
 		var viewport_width = ProjectSettings.get_setting("display/window/size/viewport_width", -1)
 		var viewport_height = ProjectSettings.get_setting("display/window/size/viewport_height", -1)
@@ -195,8 +196,13 @@ func get_recommended_resolutions(follow_project_size: bool = false) -> Array:
 			return get_recommended_resolutions()
 		
 		var project_size = Vector2(viewport_width, viewport_height)
-		#print("project size: %s" % project_size)
-		resolutions = [project_size / 3.0, project_size / 2.5, project_size / 2.0, project_size / 1.5, project_size]
+		resolutions = [
+			project_size / 3.0,
+			project_size / 2.5,
+			project_size / 2.0,
+			project_size / 1.5,
+			project_size,
+		]
 
 		var multiplier = 1.5
 		var next = project_size * multiplier
@@ -243,11 +249,9 @@ func play_global_mus(music: String, vol: float = 1, bus: String = ''):
 			music_node.bus = bus
 		else:
 			printerr("bus '%s' does not exist, playing on master instead" % bus)
-	#print("loaded song")
 	await get_tree().process_frame
 	music_node.volume_db = linear_to_db(vol)
 	music_node.play()
-	#print("playing song %s with %s volume" % [music, vol])
 
 ## Will stop global music if playing.
 func stop_global_mus():
@@ -403,7 +407,6 @@ func slugify(string: String, delimiter: String = "-", extend: Dictionary = {}) -
 		available.append(char(i))
 	for i in range(48, 58):
 		available.append(char(i))
-	#print(available)
 	
 	while index < string.length():
 		if string[index] == " ":
@@ -431,27 +434,6 @@ func slugify(string: String, delimiter: String = "-", extend: Dictionary = {}) -
 		
 	return result
 
-#func smooth_value(text_node: Node, from: int, to: int, speed: float, smooth: bool):
-	#if "text" not in text_node:
-		#printerr("node provided does not have text property")
-		#return
-	#
-	#var sp = speed
-	#
-	#while from <= to:
-		#from += 1
-		#if smooth:
-			#var distance = abs(to - from)
-			#sp = min(500, (100 - distance)) * 0.5
-			#print(sp)
-		#if from < to:
-			#text_node.text = str(from)
-			#await GTLib.wait(sp)
-		#else:
-			#text_node.text = str(to)
-			#return
-	#return
-
 ## Returns a node from the scene tree by following a custom path format using [code]" > "[/code] as a separator.[br]
 ## By default, it will get nodes from the root node.[br]
 ## [param starting_node] defines the node it will start getting nodes from.[br]
@@ -468,7 +450,6 @@ func slugify(string: String, delimiter: String = "-", extend: Dictionary = {}) -
 ## var found_node = node("player > camera") # Will return the camera node
 ## [/codeblock]
 func node(path: String, starting_node: Node = get_tree().current_scene):
-	#print(starting_node)
 	var nodes = path.split(" > ")
 	var prev_node = starting_node
 	for i in nodes:
@@ -480,7 +461,6 @@ func node(path: String, starting_node: Node = get_tree().current_scene):
 		else:
 			return null
 			
-	
 	return prev_node
 
 
