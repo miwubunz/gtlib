@@ -2,8 +2,6 @@ extends Node
 
 ## A node that contains methods to make certain stuff faster.
 
-var _playback = null
-
 ## Get the difference in [b]days[/b], [b]weeks[/b], [b]months[/b] and [b]years[/b] between a date and another.[br]
 ## Will return an empty dictionary if one of the dates is invalid.
 ## [codeblock]
@@ -21,6 +19,7 @@ func date_difference_iso_8601(date_1: String, date_2: String) -> Dictionary:
 		"month": int(date_split[0][1]),
 		"day": int(date_split[0][2])
 	}
+
 	var date_2_dict = {
 		"year": int(date_split[1][0]),
 		"month": int(date_split[1][1]),
@@ -61,12 +60,13 @@ func time_from_ms(time_ms: int) -> Dictionary:
 	var seconds = int(time_ms / 1000) % 60
 	var minutes = int(time_ms / (1000 * 60)) % 60
 	var hours = int(time_ms / (1000 * 60 * 60))
-	
+
 	return {
 		"seconds": seconds,
 		"minutes": minutes,
 		"hours": hours,
 	}
+
 
 ## Get the difference in [b]hours[/b], [b]minutes[/b] and [b]seconds[/b] between a 24 hour timestamp and another.[br]
 ## [codeblock]
@@ -75,26 +75,27 @@ func time_from_ms(time_ms: int) -> Dictionary:
 ## [/codeblock]
 func time_difference_24h(time_1: String, time_2: String) -> Dictionary:
 	var time_split = [time_1.split(":"), time_2.split(":")]
-	
+
 	for i in range(time_split.size()):
 		while time_split[i].size() < 3:
 			time_split[i].append("00")
 
 	var time1 = (int(time_split[0][0]) * 3600) + (int(time_split[0][1]) * 60) + int(time_split[0][2])
 	var time2 = (int(time_split[1][0]) * 3600) + (int(time_split[1][1]) * 60) + int(time_split[1][2])
-	
+
 	if time2 < time1:
 		time2 += 86400
-	
+
 	var e = time2 - time1
 	var rem = e % 3600
 	var j = [e / 3600, rem / 60, rem % 60]
-	
+
 	return {
 		"hours": j[0],
 		"minutes": j[1],
 		"seconds": j[2],
 	}
+
 
 ## Converts [b]markdown[/b] to [b]BBCode[/b].
 ## [br]
@@ -128,7 +129,7 @@ func markdown_to_bbcode(string: String) -> String:
 		# code: `code` -> [code]code[/code]
 		{"pattern": "`(.+?)`", "replace": "[code]$1[/code]"},
 	]
-	
+
 	for i in rules:
 		var regex = RegEx.new()
 		var err = regex.compile(i["pattern"])
@@ -136,8 +137,9 @@ func markdown_to_bbcode(string: String) -> String:
 			printerr("error while compiling!")
 			return ""
 		string = regex.sub(string, i["replace"], true)
-	
+
 	return string
+
 
 ## Makes an HTTPRequest and returns the response in a dictionary.[br]
 ## [codeblock]
@@ -148,15 +150,17 @@ func fetch(url: String = "", headers: PackedStringArray = PackedStringArray(), m
 	var req = HTTPRequest.new()
 	add_child(req)
 	req.request(url, headers, method, request_data)
-	
+
 	var response = await req.request_completed
 	req.queue_free()
+
 	return {
 		"result": response[0],
 		"status_code": response[1],
 		"headers": response[2],
 		"body": response[3],
 	}
+
 
 ## Returns [code]true[/code] if the provided character is uppercase.[br]
 ## [codeblock]GTLib.is_upper("A") # Returns true[/codeblock]
@@ -169,16 +173,18 @@ func is_upper(char: String) -> bool:
 	else:
 		return false
 
+
 ## Converts RGB [code](255,255,255)[/code] or RGBA [code](255,255,255,1)[/code] to Godot's color system [code](1,1,1,1)[/code]
 func rgb_to_normalized(red: float, green: float, blue: float, alpha: float = 1) -> Color:
 	return Color(red / 255, green / 255, blue / 255, alpha)
+
 
 ## Returns available resolutions.[br]
 ## [param follow_project_size] parameter will return resolutions based in the project window size and display if true.
 func get_recommended_resolutions(follow_project_size: bool = false) -> Array:
 	var display = Vector2(DisplayServer.screen_get_size())
 	var resolutions = []
-	
+
 	if !follow_project_size:
 		resolutions = [
 			display / 3.0,
@@ -190,11 +196,11 @@ func get_recommended_resolutions(follow_project_size: bool = false) -> Array:
 	else:
 		var viewport_width = ProjectSettings.get_setting("display/window/size/viewport_width", -1)
 		var viewport_height = ProjectSettings.get_setting("display/window/size/viewport_height", -1)
-		
+
 		if viewport_width <= 0 or viewport_height <= 0:
 			printerr("invalid project size settings, using display instead")
 			return get_recommended_resolutions()
-		
+
 		var project_size = Vector2(viewport_width, viewport_height)
 		resolutions = [
 			project_size / 3.0,
@@ -214,6 +220,7 @@ func get_recommended_resolutions(follow_project_size: bool = false) -> Array:
 
 	return resolutions
 
+
 ## Converts an image to a texture.[br]
 ## [codeblock]
 ## var texture = GTLib.img_to_texture("path/to/image.png")
@@ -224,14 +231,15 @@ func img_to_texture(img_path: String) -> ImageTexture:
 	if FileAccess.file_exists(img_path):
 		var image = Image.new()
 		image.load(img_path)
-		
+
 		var texture = ImageTexture.new()
 		texture.set_image(image)
-		
+
 		return texture
 	else:
 		printerr('%s is invalid' % img_path)
 		return null
+
 
 ## Plays a song globally.[br]
 ## [param vol] is a linear volume value, therefore, 1 = 0 decibels.
@@ -239,19 +247,24 @@ func img_to_texture(img_path: String) -> ImageTexture:
 func play_global_mus(music: String, vol: float = 1, bus: String = ''):
 	var music_node = AudioStreamPlayer.new()
 	music_node.name = "music"
+
 	if grab_music_node():
 		printerr("another music instance is running, stop it before trying to play another song")
 		return
+
 	add_child(music_node)
 	music_node.stream = load(music)
+
 	if bus.length() > 0:
 		if AudioServer.get_bus_index(bus) >= 0:
 			music_node.bus = bus
 		else:
 			printerr("bus '%s' does not exist, playing on master instead" % bus)
+
 	await get_tree().process_frame
 	music_node.volume_db = linear_to_db(vol)
 	music_node.play()
+
 
 ## Will stop global music if playing.
 func stop_global_mus():
@@ -261,6 +274,7 @@ func stop_global_mus():
 		node.queue_free()
 	else:
 		printerr('music node not found, is music playing?')
+
 
 ## Will pause global music if playing.
 func pause_global_mus():
@@ -273,6 +287,7 @@ func pause_global_mus():
 			printerr("can not pause music as music is not playing")
 	else:
 		printerr('music node not found, is music playing?')
+
 
 ## Will resume global music if it exists.
 func resume_global_mus():
@@ -287,6 +302,7 @@ func resume_global_mus():
 	else:
 		printerr('music node not found, is music playing?')
 
+
 ## Changes the position of the global music.
 func global_mus_jump_to(seek: float):
 	var node = grab_music_node()
@@ -294,6 +310,7 @@ func global_mus_jump_to(seek: float):
 		node.seek(seek)
 	else:
 		printerr('music node not found, is music playing?')
+
 
 ## Returns the music node.[br]
 ## Will return [code]null[/code] if music is not playing.
@@ -305,6 +322,7 @@ func grab_music_node() -> AudioStreamPlayer:
 					return i
 	return null
 
+
 ## Waits until the time runs out.[br]
 ## [param time] uses ms, therefore, 1000ms = 1s.
 ## [codeblock]
@@ -315,14 +333,15 @@ func wait(time: int) -> void:
 	var timer = Timer.new()
 	timer.wait_time = float(time) / float(1000)
 	timer.name = str(random_id(100, 500))
-	
+
 	add_child(timer)
 	timer.start()
-	
+
 	await timer.timeout
 	timer.stop()
 	timer.queue_free()
 	return
+
 
 ## Returns a random integer between [param min] and [param max].[br]
 ## Exceptions can be added.[br]
@@ -336,6 +355,7 @@ func random_id(min: int, max: int, exceptions: PackedInt32Array = []) -> int:
 		return -1
 	var id = randi_range(min,max)
 	return id if id not in exceptions else random_id(min,max,exceptions)
+
 
 ## @experimental: lacks [b]headings[/b] and [b]quoteblocks[/b].
 ## Convert [b]BBCode[/b] to [b]markdown[/b].[br]
@@ -363,7 +383,6 @@ func bbcode_to_markdown(string: String, lang: String = "") -> String:
 		{"pattern": "\\[code](.+?)\\[/code]", "replace": "`$1`"},
 	]
 
-	
 	for i in rules:
 		var regex = RegEx.new()
 		var err = regex.compile(i["pattern"])
@@ -374,16 +393,18 @@ func bbcode_to_markdown(string: String, lang: String = "") -> String:
 	
 	return string
 
+
 ## Sets a mouse filter to a node and its children (optional).[br]
 ## Exceptions can be added.
 ## [codeblock]
-## GTLib.set_mouse_filter($obj, Control.MOUSE_FILTER_IGNORE, true, ["Button"])
 ## # Sets "ignore" filter for obj and its children, except Buttons.
+## GTLib.set_mouse_filter($obj, Control.MOUSE_FILTER_IGNORE, true, ["Button"])
 ## [/codeblock]
 func set_mouse_filter(node: Node, filter : Control.MouseFilter, children: bool = false, exceptions: PackedStringArray = []) -> void:
 	if !_is_type(node, exceptions):
 		if "mouse_filter" in node:
 			node.mouse_filter = filter
+
 	if children:
 		if node.get_child_count() > 0:
 			for i in node.get_children():
@@ -393,6 +414,7 @@ func set_mouse_filter(node: Node, filter : Control.MouseFilter, children: bool =
 					continue
 				if "mouse_filter" in i:
 					i.mouse_filter = filter
+
 
 ## Converts a string to an url-friendly string.
 ## [codeblock]
@@ -407,7 +429,7 @@ func slugify(string: String, delimiter: String = "-", extend: Dictionary = {}) -
 		available.append(char(i))
 	for i in range(48, 58):
 		available.append(char(i))
-	
+
 	while index < string.length():
 		if string[index] == " ":
 			result += delimiter
@@ -428,11 +450,12 @@ func slugify(string: String, delimiter: String = "-", extend: Dictionary = {}) -
 			else:
 				index += 1
 				continue
-		
+
 		result += string[index]
 		index += 1
-		
+
 	return result
+
 
 ## Returns a node from the scene tree by following a custom path format using [code]" > "[/code] as a separator.[br]
 ## By default, it will get nodes from the root node.[br]
@@ -460,15 +483,17 @@ func node(path: String, starting_node: Node = get_tree().current_scene):
 				return null
 		else:
 			return null
-			
+
 	return prev_node
 
+var _playback = null
 
 func _are_in(string, dict, array):
 	for i in dict[string]:
 		if i.to_lower() not in array:
 			return false
 	return true
+
 
 func _is_type(node, types):
 	for e in range(types.size()):
