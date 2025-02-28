@@ -5,6 +5,7 @@ extends Node
 var _playback = null
 
 ## Get the difference in [b]days[/b], [b]weeks[/b], [b]months[/b] and [b]years[/b] between a date and another.[br]
+## Will return an empty dictionary if one of the dates is invalid.
 ## [codeblock]
 ## var date_difference = GTLib.date_difference_iso_8601("2022-02-04", "2022-02-11")
 ## print(date_difference) # Prints { "days": 7, "weeks": 1, "months": 0, "years": 0 }
@@ -14,30 +15,44 @@ func date_difference_iso_8601(date_1: String, date_2: String) -> Dictionary:
 	for i in range(date_split.size()):
 		while date_split[i].size() < 3:
 			date_split[i].append("1")
-	
-	var unix_1 = Time.get_unix_time_from_datetime_dict({
-		"years": date_split[0][0],
-		"month": date_split[0][1],
-		"day": date_split[0][2]
-	})
 
-	var unix_2 = Time.get_unix_time_from_datetime_dict({
-		"years": date_split[1][0],
-		"month": date_split[1][1],
-		"day": date_split[1][2]
-	})
-	
-	var days: int = int(unix_2 - unix_1) / 86400
-	var weeks = int(days / 7)
-	var months: int = int(date_split[1][1]) - int(date_split[0][1])
-	var years: int = int(date_split[1][0]) - int(date_split[0][0])
-	
+	var date_1_dict = {
+		"year": int(date_split[0][0]),
+		"month": int(date_split[0][1]),
+		"day": int(date_split[0][2])
+	}
+	var date_2_dict = {
+		"year": int(date_split[1][0]),
+		"month": int(date_split[1][1]),
+		"day": int(date_split[1][2])
+	}
+
+	var unix_1 = Time.get_unix_time_from_datetime_dict(date_1_dict)
+	var unix_2 = Time.get_unix_time_from_datetime_dict(date_2_dict)
+
+	#print(unix_1)
+
+	if unix_1 == 0 || unix_2 == 0:
+		printerr("invalid date!")
+		return {}
+
+	if unix_1 > unix_2:
+		var temp = unix_1
+		unix_1 = unix_2
+		unix_2 = temp
+
+	var days: int = (unix_2 - unix_1) / 86400
+	var years = date_2_dict["year"] - date_1_dict["year"]
+	var months = (years * 12) + (date_2_dict["month"] - date_1_dict["month"])
+	var weeks = days / 7
+
 	return {
 		"days": days,
 		"weeks": weeks,
 		"months": months,
 		"years": years
 	}
+
 
 ## Converts [b]ms[/b] to [b]seconds[/b], [b]minutes[/b] and [b]hours.[/b]
 ## [codeblock]
@@ -62,6 +77,7 @@ func time_from_ms(time_ms: int) -> Dictionary:
 ## [/codeblock]
 func time_difference_24h(time_1: String, time_2: String) -> Dictionary:
 	var time_split = [time_1.split(":"), time_2.split(":")]
+	
 	
 	for i in range(time_split.size()):
 		while time_split[i].size() < 3:
