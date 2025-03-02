@@ -86,14 +86,14 @@ func time_difference_24h(time_1: String, time_2: String) -> Dictionary:
 	if time2 < time1:
 		time2 += 86400
 
-	var e = time2 - time1
-	var rem = e % 3600
-	var j = [e / 3600, rem / 60, rem % 60]
+	var total_secs = time2 - time1
+	var remaining_secs = total_secs % 3600
+	var time_diff = [total_secs / 3600, remaining_secs / 60, remaining_secs % 60]
 
 	return {
-		"hours": j[0],
-		"minutes": j[1],
-		"seconds": j[2],
+		"hours": time_diff[0],
+		"minutes": time_diff[1],
+		"seconds": time_diff[2],
 	}
 
 
@@ -486,7 +486,44 @@ func node(path: String, starting_node: Node = get_tree().current_scene):
 
 	return prev_node
 
+
+## Returns the number of differences between a string and another.[br]
+## [codeblock]
+## var text1 = "kitten"
+## var text2 = "sitting"
+## print(GTLib.text_distance(text1, text2)) # Will print "3"
+## [/codeblock]
+func text_distance(string: String, string2: String) -> int:
+	var length1 = string.length()
+	var length2 = string2.length()
+
+	var prev_row = range(length2 + 1)
+	var current_row = range(length2 + 1)
+
+	for i in range(length2 + 1):
+		prev_row.append(i)
+		current_row.append(0)
+
+	for i in range(1, length1 + 1):
+		current_row[0] = i
+
+		for j in range(1, length2 + 1):
+			if string[i - 1] == string2[j - 1]:
+				current_row[j] = prev_row[j - 1]
+			else:
+				current_row[j] = 1 + min(
+					current_row[j - 1],
+					prev_row[j],
+					prev_row[j - 1],
+				)
+
+		prev_row = current_row.duplicate()
+
+	return current_row[length2]
+
+
 var _playback = null
+
 
 func _are_in(string, dict, array):
 	for i in dict[string]:
