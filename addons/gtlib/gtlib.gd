@@ -381,6 +381,8 @@ func bbcode_to_markdown(string: String, lang: String = "") -> String:
 		{"pattern": "\\[codeblock](.+?)\\[/codeblock]", "replace": "```%s\n$1\n```" % lang},
 		# code: [code]code[/code] -> `code`
 		{"pattern": "\\[code](.+?)\\[/code]", "replace": "`$1`"},
+		# line break: [br] -> \n
+		{"pattern": "\\[br]", "replace": "\n"}
 	]
 
 	for i in rules:
@@ -472,7 +474,7 @@ func slugify(string: String, delimiter: String = "-", extend: Dictionary = {}) -
 ## [codeblock]
 ## var found_node = node("player > camera") # Will return the camera node
 ## [/codeblock]
-func node(path: String, starting_node: Node = get_tree().current_scene):
+func node(path: String, starting_node: Node = get_tree().current_scene) -> Node:
 	var nodes = path.split(" > ")
 	var prev_node = starting_node
 	for i in nodes:
@@ -491,7 +493,7 @@ func node(path: String, starting_node: Node = get_tree().current_scene):
 ## [codeblock]
 ## var text1 = "kitten"
 ## var text2 = "sitting"
-## print(GTLib.text_distance(text1, text2)) # Will print "3"
+## print(GTLib.text_distance(text1, text2)) # Output: 3
 ## [/codeblock]
 func text_distance(string: String, string2: String) -> int:
 	var length1 = string.length()

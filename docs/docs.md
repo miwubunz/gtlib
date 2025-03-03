@@ -181,3 +181,12 @@ var string = GTLib.slugify("Hello World ♥", "_", {"♥": "love"})
 print(string) # Will print "hello_world_love"
 
 ```
+
+# text_distance
+
+Returns the number of differences between a string and another.
+```gdscript
+var text1 = "kitten"
+var text2 = "sitting"
+print(GTLib.text_distance(text1, text2)) # Output: 3
+```
