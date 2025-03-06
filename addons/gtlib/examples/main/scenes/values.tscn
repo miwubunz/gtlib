@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://dnvlc4e73irwv"]
 
-[ext_resource type="Script" path="res://addons/gtlib/examples/main/scripts/values.gd" id="1_ywh1w"]
+[ext_resource type="Script" uid="uid://cisih7rkxfwh2" path="res://addons/gtlib/examples/main/scripts/values.gd" id="1_ywh1w"]
 
 [node name="values" type="Control"]
 layout_mode = 3

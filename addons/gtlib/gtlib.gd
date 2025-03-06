@@ -103,15 +103,9 @@ func time_difference_24h(time_1: String, time_2: String) -> Dictionary:
 func markdown_to_bbcode(string: String) -> String:
 	var rules = [
 		# images: ![alt](url) -> [img]url[/img]
-		{"pattern": "!\\[(.*?)\\]\\((.*?)\\)", "replace": "[img]$2[/img]"},
+		{"pattern": "!\\[(.*?)\\]\\((.*?)\\)", "replace": "[img tooltip=$1]$2[/img]"},
 		# hyperlink: [text](url) -> [url=url]text[/url]
 		{"pattern": "\\[(.+?)\\]\\((.+?)\\)", "replace": "[url=$2]$1[/url]"},
-		# heading 1: # text -> [font_size=50]text[/font_size]
-		{"pattern": "^# (.+)$", "replace": "[b][font_size=50]$1[/font_size][/b]"},
-		# heading 2: ## text -> [font_size=45]text[/font_size]
-		{"pattern": "^## (.+)$", "replace": "[b][font_size=45]$1[/font_size][/b]"},
-		# heading 3: ### text -> [font_size=40]text[/font_size]
-		{"pattern": "^### (.+)$", "replace": "[b][font_size=40]$1[/font_size][/b]"},
 		# bold italics: ***text*** -> [b][i]text[/i][/b]
 		{"pattern": "\\*\\*\\*(.+?)\\*\\*\\*", "replace": "[b][i]$1[/i][/b]"},
 		# strikethrough: ~~text~~ -> [s]text[/s]
@@ -122,12 +116,20 @@ func markdown_to_bbcode(string: String) -> String:
 		# italic: *text* or _text_ -> [i]text[/i]
 		{"pattern": "\\*(.+?)\\*", "replace": "[i]$1[/i]"},
 		{"pattern": "\\_(.+?)\\_", "replace": "[i]$1[/i]"},
+		# unordered list: - text -> [ul] text[/ul]
+		{"pattern": "\\-(.+)", "replace": "[ul]$1[/ul]"},
 		
 		# codeblock: ```code``` -> [codeblock]code[/codeblock]
 		#{"pattern": "```(.*?)```", "replace": "[codeblock]$1[/codeblock]"},
 		
 		# code: `code` -> [code]code[/code]
-		{"pattern": "`(.+?)`", "replace": "[code]$1[/code]"},
+		{"pattern": "`(.+)`", "replace": "[code]$1[/code]"},
+		# heading 3: ### text -> [font_size=30]text[/font_size]
+		{"pattern": "### (.+)", "replace": "[b][font_size=40]$1[/font_size][/b]"},
+		# heading 2: ## text -> [font_size=35]text[/font_size]
+		{"pattern": "## (.+)", "replace": "[b][font_size=45]$1[/font_size][/b]"},
+		# heading 1: # text -> [font_size=40]text[/font_size]
+		{"pattern": "# (.+)", "replace": "[b][font_size=50]$1[/font_size][/b]"},
 	]
 
 	for i in rules:

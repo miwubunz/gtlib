@@ -1,12 +1,13 @@
 extends Control
 
 
-func _on_line_edit_text_changed(new_text: String) -> void:
-	$HBoxContainer/markdown/text.text = GTLib.markdown_to_bbcode(new_text)
+func md() -> void:
+	$HBoxContainer/markdown/text.text = GTLib.markdown_to_bbcode($HBoxContainer/markdown/TextEdit.text)
 
 
-func bbcode(new_text: String) -> void:
-	$HBoxContainer/bbcode/text.text = GTLib.bbcode_to_markdown(new_text)
+func bbcode() -> void:
+	var text = $HBoxContainer/bbcode/TextEdit.text
+	$HBoxContainer/bbcode/text.text = GTLib.bbcode_to_markdown(text)
 
 
 func upper(new_text: String) -> void:

@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://c28cxxjo3fjl7"]
 
-[ext_resource type="Script" path="res://addons/gtlib/examples/main/scripts/fetch.gd" id="1_yv1ka"]
+[ext_resource type="Script" uid="uid://canntvok4dkaw" path="res://addons/gtlib/examples/main/scripts/fetch.gd" id="1_yv1ka"]
 
 [node name="fetch" type="Control"]
 layout_mode = 3

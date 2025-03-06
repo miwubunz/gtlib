@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://bi425q2wtxnat"]
 
-[ext_resource type="Script" path="res://addons/gtlib/examples/main/scripts/music.gd" id="1_kmuv6"]
+[ext_resource type="Script" uid="uid://b0rwd06wjy5nl" path="res://addons/gtlib/examples/main/scripts/music.gd" id="1_kmuv6"]
 
 [node name="music" type="Control"]
 layout_mode = 3
