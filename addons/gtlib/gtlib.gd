@@ -103,7 +103,7 @@ func time_difference_24h(time_1: String, time_2: String) -> Dictionary:
 func markdown_to_bbcode(string: String) -> String:
 	var rules = [
 		# images: ![alt](url) -> [img]url[/img]
-		{"pattern": "!\\[(.*?)\\]\\((.*?)\\)", "replace": "[img tooltip=$1]$2[/img]"},
+		{"pattern": "!\\[(.*?)\\]\\((.*)\\)", "replace": "[img tooltip=$1]$2[/img]"},
 		# hyperlink: [text](url) -> [url=url]text[/url]
 		{"pattern": "\\[(.+?)\\]\\((.+?)\\)", "replace": "[url=$2]$1[/url]"},
 		# bold italics: ***text*** -> [b][i]text[/i][/b]
