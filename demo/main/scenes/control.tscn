@@ -1,0 +1,129 @@
+[gd_scene load_steps=6 format=3 uid="uid://cnkyr0jq10opb"]
+
+[ext_resource type="Script" uid="uid://cvu0722tmpm01" path="res://main/scripts/control.gd" id="1_dlpla"]
+[ext_resource type="Script" uid="uid://bkcrwy26lr8on" path="res://main/scripts/markdown.gd" id="2_8arj8"]
+[ext_resource type="Script" uid="uid://55xl7ff0vh1p" path="res://main/scripts/bb.gd" id="3_1na4h"]
+[ext_resource type="Script" uid="uid://cl5smg5l0g37x" path="res://main/scripts/slugify.gd" id="4_1r11s"]
+[ext_resource type="Script" uid="uid://dbr2fhliqvtlf" path="res://main/scripts/distance.gd" id="5_tnaql"]
+
+[node name="Control" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_dlpla")
+
+[node name="title" type="RichTextLabel" parent="."]
+layout_mode = 2
+offset_left = 41.0
+offset_top = 16.0
+offset_right = 656.0
+offset_bottom = 98.0
+bbcode_enabled = true
+text = "[font_size=50]string methods[/font_size]"
+autowrap_mode = 0
+
+[node name="GridContainer" type="GridContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -535.0
+offset_top = -209.0
+offset_right = 535.0
+offset_bottom = 408.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/v_separation = -100
+columns = 3
+
+[node name="md" type="VBoxContainer" parent="GridContainer"]
+custom_minimum_size = Vector2(350, 250)
+layout_mode = 2
+script = ExtResource("2_8arj8")
+
+[node name="Label" type="Label" parent="GridContainer/md"]
+layout_mode = 2
+text = "Markdown to BBCode"
+
+[node name="TextEdit" type="TextEdit" parent="GridContainer/md"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+placeholder_text = "**hi!**"
+
+[node name="RichTextLabel" type="RichTextLabel" parent="GridContainer/md"]
+layout_mode = 2
+bbcode_enabled = true
+fit_content = true
+
+[node name="bb" type="VBoxContainer" parent="GridContainer"]
+custom_minimum_size = Vector2(350, 250)
+layout_mode = 2
+script = ExtResource("3_1na4h")
+
+[node name="Label" type="Label" parent="GridContainer/bb"]
+layout_mode = 2
+text = "BBCode to Markdown"
+
+[node name="TextEdit" type="TextEdit" parent="GridContainer/bb"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+placeholder_text = "[b]hi![/b]"
+
+[node name="RichTextLabel" type="RichTextLabel" parent="GridContainer/bb"]
+layout_mode = 2
+fit_content = true
+
+[node name="slugify" type="VBoxContainer" parent="GridContainer"]
+custom_minimum_size = Vector2(350, 250)
+layout_mode = 2
+script = ExtResource("4_1r11s")
+
+[node name="Label" type="Label" parent="GridContainer/slugify"]
+layout_mode = 2
+text = "Slugify"
+
+[node name="TextEdit" type="TextEdit" parent="GridContainer/slugify"]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+placeholder_text = "Hello World! :D"
+
+[node name="RichTextLabel" type="RichTextLabel" parent="GridContainer/slugify"]
+layout_mode = 2
+fit_content = true
+
+[node name="distance" type="VBoxContainer" parent="GridContainer"]
+custom_minimum_size = Vector2(350, 250)
+layout_mode = 2
+script = ExtResource("5_tnaql")
+
+[node name="Label" type="Label" parent="GridContainer/distance"]
+layout_mode = 2
+text = "Levenshtein Distance"
+
+[node name="HBoxContainer" type="HBoxContainer" parent="GridContainer/distance"]
+layout_mode = 2
+
+[node name="TextEdit" type="TextEdit" parent="GridContainer/distance/HBoxContainer"]
+custom_minimum_size = Vector2(175, 40)
+layout_mode = 2
+placeholder_text = "kitten"
+
+[node name="TextEdit2" type="TextEdit" parent="GridContainer/distance/HBoxContainer"]
+custom_minimum_size = Vector2(175, 40)
+layout_mode = 2
+placeholder_text = "sitting"
+
+[node name="RichTextLabel" type="RichTextLabel" parent="GridContainer/distance"]
+layout_mode = 2
+fit_content = true
+
+[connection signal="text_changed" from="GridContainer/md/TextEdit" to="GridContainer/md" method="markdown"]
+[connection signal="text_changed" from="GridContainer/bb/TextEdit" to="GridContainer/bb" method="bb"]
+[connection signal="text_changed" from="GridContainer/slugify/TextEdit" to="GridContainer/slugify" method="slugify"]
+[connection signal="text_changed" from="GridContainer/distance/HBoxContainer/TextEdit" to="GridContainer/distance" method="distance"]
+[connection signal="text_changed" from="GridContainer/distance/HBoxContainer/TextEdit2" to="GridContainer/distance" method="distance"]

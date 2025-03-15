@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<class name="GTLib" inherits="Object" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://raw.githubusercontent.com/godotengine/godot/master/doc/class.xsd">
+	<brief_description>
+		Methods to make some tasks easier.
+	</brief_description>
+	<description>
+	</description>
+	<tutorials>
+	</tutorials>
+	<methods>
+		<method name="bbcode_to_markdown" qualifiers="const">
+			<return type="String" />
+			<param index="0" name="bbcode" type="String" />
+			<param index="1" name="lang" type="String" default="&quot;&quot;" />
+			<description>
+			[b][i]lacks [b]headings[/b] and [b]quoteblocks[/b].[/i][/b]
+			Convert [b]BBCode[/b] to [b]markdown[/b].[br]
+			[codeblock]
+			var gtlib = GTLib.new()
+			gtlib.bbcode_to_markdown("[b]This is bold.[/b]") # Returns "**This is bold.**"
+			[/codeblock]
+			</description>
+		</method>
+		<method name="date_difference_iso_8601" qualifiers="const">
+			<return type="Dictionary" />
+			<param index="0" name="date_1" type="String" />
+			<param index="1" name="date_2" type="String" />
+			<description>
+			Get the difference in [b]days[/b], [b]weeks[/b], [b]months[/b] and [b]years[/b] between a date and another.
+			Will return an empty dictionary if one of the dates is invalid.
+			[codeblock]
+			var gtlib = GTLib.new()
+			gtlib.date_difference_iso_8601("2022-02-04", "2022-02-11")
+			# Returns { "days": 7, "weeks": 1, "months": 0, "years": 0 }
+			[/codeblock]
+			</description>
+		</method>
+		<method name="get_available_resolutions" qualifiers="const">
+			<return type="PackedVector2Array" />
+			<param index="0" name="follow_project_size" type="bool" default="false" />
+			<description>
+			Returns available resolutions.
+			[param follow_project_size] parameter will return resolutions based in the project window size and display if true.
+			</description>
+		</method>
+		<method name="get_days_in_month" qualifiers="const">
+			<return type="int" />
+			<param index="0" name="month" type="int" />
+			<param index="1" name="year" type="int" />
+			<description>
+			Returns the amount of days in a month.
+			Will return [code]0[/code] if the month provided is invalid.
+			[codeblock]
+			var gtlib = GTLib.new()
+			gtlib.get_days_in_month(2, 2020) # returns "29"
+			[/codeblock]
+			</description>
+		</method>
+		<method name="img_to_texture" qualifiers="const">
+			<return type="ImageTexture" />
+			<param index="0" name="img_path" type="String" />
+			<description>
+			Converts an image to a texture.
+			[codeblock]
+			var gtlib = GTLib.new()
+			var texture = gtlib.img_to_texture("path/to/image.png")
+			var txr_rect = TextureRect.new()
+			txr_rect.texture = texture # will assign the texture
+			[/codeblock]
+			</description>
+		</method>
+		<method name="is_leap_year" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="year" type="int" />
+			<description>
+			Will return [code]true[/code] if the year provided is a leap year.
+			[codeblock]
+			var gtlib = GTLib.new()
+			gtlib.is_leap_year(2012) # Will return "true"
+			[/codeblock]
+			</description>
+		</method>
+		<method name="is_upper" qualifiers="const">
+			<return type="bool" />
+			<param index="0" name="character" type="String" />
+			<description>
+			Returns [code]true[/code] if the provided character is uppercase.
+			[codeblock]
+			var gtlib = GTLib.new()
+			gtlib.is_upper("A") # Returns true[/codeblock]
+			</description>
+		</method>
+		<method name="markdown_to_bbcode" qualifiers="const">
+			<return type="String" />
+			<param index="0" name="markdown" type="String" />
+			<description>
+			Converts [b]markdown[/b] to [b]BBCode[/b].
+			[codeblock]
+			var gtlib = GTLib.new()
+			gtlib.markdown_to_bbcode("**This is bold.**") # Returns "[b]This is bold.[/b]"
+			[/codeblock]
+			</description>
+		</method>
+		<method name="node">
+			<return type="Node" />
+			<param index="0" name="path" type="String" />
+			<param index="1" name="starting_node" type="Node" />
+			<description>
+			Returns a node from the scene tree by following a custom path format using [code]" &gt; "[/code] as a separator.
+			[param starting_node] defines the node it will start getting nodes from.
+			Will return [code]null[/code] if a node doesn't exist.
+			[codeblock]
+			# Assuming a scene structure like this:
+			┖ root
+			    ┖╴player
+			        ┠ camera
+			        ┖ weapon
+			[/codeblock]
+			[codeblock]
+			var gtlib = GTLib.new()
+			gtlib.node("player &gt; camera") # Will return the camera node
+			[/codeblock]
+			</description>
+		</method>
+		<method name="random_number" qualifiers="const">
+			<return type="int" />
+			<param index="0" name="min" type="int" />
+			<param index="1" name="max" type="int" />
+			<param index="2" name="exceptions" type="PackedInt32Array" default="[]" />
+			<description>
+			Returns a random integer between [param min] and [param max].
+			Exceptions can be added.
+			Will return [code]-1[/code] if [param exceptions] covers all possible numbers.
+			[codeblock]
+			var gtlib = GTLib.new()
+			gtlib.random_number(1, 100, [50]) # Will give a number from 1 to 100, but will avoid 50.
+			[/codeblock]
+			</description>
+		</method>
+		<method name="rgb_to_normalized" qualifiers="const">
+			<return type="Color" />
+			<param index="0" name="red" type="int" />
+			<param index="1" name="green" type="int" />
+			<param index="2" name="blue" type="int" />
+			<param index="3" name="alpha" type="float" default="1.0" />
+			<description>
+			Converts RGB [code](255,255,255)[/code] or RGBA [code](255,255,255,1)[/code] to Godot's color system [code](1,1,1,1)[/code]
+			</description>
+		</method>
+		<method name="set_mouse_filter_recursive">
+			<return type="void" />
+			<param index="0" name="node" type="Control" />
+			<param index="1" name="filter" type="int" enum="Control.MouseFilter" />
+			<param index="2" name="children" type="bool" default="false" />
+			<param index="3" name="exceptions" type="PackedStringArray" default="PackedStringArray()" />
+			<description>
+			Sets a mouse filter to a node and its children (optional).
+			Exceptions can be added.
+			[codeblock]
+			# Sets "ignore" filter for obj and its children, except Buttons.
+			var gtlib = GTLib.new()
+			gtlib.set_mouse_filter($obj, Control.MOUSE_FILTER_IGNORE, true, ["Button"])
+			[/codeblock]
+			</description>
+		</method>
+		<method name="slugify" qualifiers="const">
+			<return type="String" />
+			<param index="0" name="string" type="String" />
+			<param index="1" name="delimiter" type="String" default="&quot;-&quot;" />
+			<param index="2" name="extend" type="Dictionary" default="{}" />
+			<description>
+			Converts a string to an url-friendly string.
+			[codeblock]
+			var gtlib = GTLib.new()
+			gtlib.slugify("Hello World ♥", "_", {"♥": "love"})
+			# Will return "hello_world_love"
+			[/codeblock]
+			</description>
+		</method>
+		<method name="text_distance" qualifiers="const">
+			<return type="int" />
+			<param index="0" name="string_1" type="String" />
+			<param index="1" name="string_2" type="String" />
+			<description>
+			Returns the number of differences between a string and another.
+			[codeblock]
+			var gtlib = GTLib.new()
+			var text1 = "kitten"
+			var text2 = "sitting"
+			gtlib.text_distance(text1, text2) # Will return "3"
+			[/codeblock]
+			</description>
+		</method>
+		<method name="time_difference_24h" qualifiers="const">
+			<return type="Dictionary" />
+			<param index="0" name="time_1" type="String" />
+			<param index="1" name="time_2" type="String" />
+			<description>
+			Get the difference in [b]hours[/b], [b]minutes[/b] and [b]seconds[/b] between a 24 hour timestamp and another.
+			[codeblock]
+			var gtlib = GTLib.new()
+			gtlib.time_difference_24h("06:25:21", "16:24:39")
+			# will return { "hours": 9, "minutes": 59, "seconds": 18 }
+			[/codeblock]
+			</description>
+		</method>
+		<method name="time_from_ms" qualifiers="const">
+			<return type="Dictionary" />
+			<param index="0" name="time_ms" type="int" />
+			<description>
+			Converts [b]ms[/b] to [b]seconds[/b], [b]minutes[/b] and [b]hours.[/b]
+			[codeblock]
+			var gtlib = GTLib.new()
+			gtlib.time_from_ms(5000)
+			# Will return { "seconds": 5, "minutes": 0, "hours": 0 }
+			[/codeblock]
+			</description>
+		</method>
+	</methods>
+</class>

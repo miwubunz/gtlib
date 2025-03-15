@@ -1,18 +1,72 @@
-# Godot 4+ specific ignores
+/bin/
+/build/
+/__pycache__/
+
+# Ignore CMake-generated files
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+*.cmake
+
+
+# Godot auto generated files
+*.gen.*
 .godot/
 
+# Ignore library files but not the gdextension file
+demo/bin/*
+!demo/bin/android
+demo/bin/android/*
+!demo/bin/android/.gitkeep
+!demo/bin/linux
+demo/bin/linux/*
+!demo/bin/linux/.gitkeep
+!demo/bin/macos
+demo/bin/macos/*
+!demo/bin/macos/.gitkeep
+!demo/bin/windows
+demo/bin/windows/*
+!demo/bin/windows/.gitkeep
+!demo/bin/*.gdextension
+.sconsign*.dblite
 
-# Godot-specific ignores
-.import/
-export.cfg
-export_presets.cfg
+# Ignore custom.py
+custom.py
 
-# Imported translations (automatically generated from CSV files)
-*.translation
+# Ignore generated compile_commands.json
+compile_commands.json
 
-# Mono-specific ignores
-.mono/
-data_*/
-mono_crash.*.json
+# Ignore files generated for documentation
+/src/gen
 
-.docs_imported
+# Binaries
+*.o
+*.os
+*.so
+*.obj
+*.bc
+*.pyc
+*.dblite
+*.pdb
+*.lib
+*.config
+*.creator
+*.creator.user
+*.files
+*.includes
+*.idb
+*.exp
+
+# Other stuff
+*.log
+
+# VSCode
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+
+# Jetbrains
+.idea/

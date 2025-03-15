@@ -1,25 +1,22 @@
-# gtlib
-a godot 4.3 plugin that simplifies certain tasks on gdscript
+# GTLib
+A custom Godot class containing methods to make certain tasks easier.
 
-# how to use
-to install **GTLib**, add the "addons" folder to the root of your godot project, then follow these steps:
-- open "Project"
-- open "Project Settings"
-- open the "Plugins" tab
-- enable "GTLib"
+## installation
+to use GTLib in your project:
+- copy the contents of `demo/addons` to the `addons` folder in your project directory.
 
-once enabled, you can call any of GTLib's methods from any script
+## usage
+create an instance of GTLib in any script where you want to use it.
 
-# docs
-to see the plugin's docs in the godot editor:
-- open the "Script" section
-- tap "Search Help" in the script editor
-- search for "GTLib" and press "Open"
+### example:
+```gdscript
+var gtlib = GTLib.new()
+```
 
-otherwise, to see the docs on github, see [DOCS](docs/docs.md) ***(these docs are imported from the source code and converted to markdown with the "bbcode_to_markdown" function, for full info, use the plugin's in-editor documentation)***
+then, call any method by using the instance you created.
 
-# license
-this project is licensed under the MIT License, see the [LICENSE](LICENSE) file for details
+## license
+this project is licensed under the MIT License, see the [LICENSE](LICENSE) file for details.
 
-# contributions
-any contributions are welcome <3
+## contributing
+any contributions are welcome! please read our [CONTRIBUTING.md](CONTRIBUTING.md) <3
