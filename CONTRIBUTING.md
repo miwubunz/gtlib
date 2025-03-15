@@ -16,7 +16,7 @@ to test your project:
 - **import the "demo" project** to Godot and run it to test changes
 
 ## reporting issues
-if you find a bug or have a suggestion, [open an issue](https://github.com/miwubunz/gtlib/issues). be sure to include:
+if you find a bug or have a suggestion, [open an issue](https://github.com/miwubunz/gtlib/issues/new). be sure to include:
 - a clear description of the issue
 - steps to reproduce
 - any relevant logs or screenshots
