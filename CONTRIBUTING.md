@@ -5,7 +5,7 @@ make sure you have the following installed:
 - **g++**
 
 ## getting started
-1. **fork and clone the repository** to your local machine *(including submodules)*
+1. **fork and clone the repository** to your local machine
 2. **create a new branch** for your changes
 3. **make your changes**
 4. **submit a pull request** with a clear description of your changes
