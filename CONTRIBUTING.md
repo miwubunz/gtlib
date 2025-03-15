@@ -5,14 +5,14 @@ make sure you have the following installed:
 - **g++**
 
 ## getting started
-1. **fork and clone the repository** to your local machine
+1. **fork and clone the repository (including submodules)** to your local machine
 2. **create a new branch** for your changes
 3. **make your changes**
 4. **submit a pull request** with a clear description of your changes
 
 ## testing
 to test your project:
-- **run `scons`** in the terminal (to compile)
+- **run `scons`** in the terminal ***(if you didnt run it before, youll have to wait until it compiles all godot source files)***
 - **import the "demo" project** to Godot and run it to test changes
 
 ## reporting issues
