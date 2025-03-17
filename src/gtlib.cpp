@@ -11,30 +11,13 @@
 #include <godot_cpp/classes/image_texture.hpp>
 #include <godot_cpp/classes/file_access.hpp>
 #include <godot_cpp/classes/timer.hpp>
+#include <godot_cpp/classes/http_client.hpp>
+
 
 using namespace godot;
 
-void GTLib::_bind_methods() {
-    ClassDB::bind_method(D_METHOD("date_difference_iso_8601", "date_1", "date_2"), &GTLib::date_difference_iso_8601);
-    ClassDB::bind_method(D_METHOD("time_from_ms", "time_ms"), &GTLib::time_from_ms);
-    ClassDB::bind_method(D_METHOD("time_difference_24h", "time_1", "time_2"), &GTLib::time_difference_24h);
-    ClassDB::bind_method(D_METHOD("markdown_to_bbcode", "markdown"), &GTLib::markdown_to_bbcode);
-    ClassDB::bind_method(D_METHOD("is_upper", "character"), &GTLib::is_upper);
-    ClassDB::bind_method(D_METHOD("rgb_to_normalized", "red", "green", "blue", "alpha"), &GTLib::rgb_to_normalized, DEFVAL(1.0));
-    ClassDB::bind_method(D_METHOD("get_available_resolutions", "follow_project_size"), &GTLib::get_available_resolutions, DEFVAL(false));
-    ClassDB::bind_method(D_METHOD("img_to_texture", "img_path"), &GTLib::img_to_texture);
-    ClassDB::bind_method(D_METHOD("random_number", "min", "max", "exceptions"), &GTLib::random_number, DEFVAL(Array()));
-    ClassDB::bind_method(D_METHOD("slugify", "string", "delimiter", "extend"), &GTLib::slugify, DEFVAL("-"), DEFVAL(Dictionary()));
-    ClassDB::bind_method(D_METHOD("set_mouse_filter_recursive", "node", "filter", "children", "exceptions"), &GTLib::set_mouse_filter_recursive, DEFVAL(false), DEFVAL(PackedStringArray()));
-    ClassDB::bind_method(D_METHOD("bbcode_to_markdown", "bbcode", "lang"), &GTLib::bbcode_to_markdown, DEFVAL(""));
-    ClassDB::bind_method(D_METHOD("node", "path", "starting_node"), &GTLib::node);
-    ClassDB::bind_method(D_METHOD("text_distance", "string_1", "string_2"), &GTLib::text_distance);
-    ClassDB::bind_method(D_METHOD("get_days_in_month", "month", "year"), &GTLib::get_days_in_month);
-    ClassDB::bind_method(D_METHOD("is_leap_year", "year"), &GTLib::is_leap_year);
-}
 
-
-Dictionary GTLib::date_difference_iso_8601(String date_1, String date_2) const {
+Dictionary GTLib::date_difference_iso_8601(String date_1, String date_2) {
     Array date_split_1 = date_1.split("-");
     Array date_split_2 = date_2.split("-");
 
@@ -54,12 +37,11 @@ Dictionary GTLib::date_difference_iso_8601(String date_1, String date_2) const {
     int unix_1 = Time::get_singleton()->get_unix_time_from_datetime_dict(date_1_dict);
     int unix_2 = Time::get_singleton()->get_unix_time_from_datetime_dict(date_2_dict);
 
-
     if ((unix_1 == 0 && date_1 != "1970-01-01") || (unix_2 == 0 && date_2 != "1970-01-01")) {
-        Dictionary err;
         UtilityFunctions::printerr("invalid date!");
-        return err;
+        return Dictionary();
     }
+
     if (unix_1 > unix_2) {
         int temp = unix_1;
         unix_1 = unix_2;
@@ -82,10 +64,11 @@ Dictionary GTLib::date_difference_iso_8601(String date_1, String date_2) const {
 }
 
 
-int GTLib::get_days_in_month(int month, int year) const {
+int GTLib::get_days_in_month(int month, int year) {
     if (month < 1 || month > 12) {
         return 0;
     }
+
     switch(month) {
         case 4: case 6: case 9: case 11:
             return 30;
@@ -94,11 +77,12 @@ int GTLib::get_days_in_month(int month, int year) const {
         default:
             return 31;
     }
+
     return 0;
 }
 
 
-bool GTLib::is_leap_year(int year) const {
+bool GTLib::is_leap_year(int year) {
     if (year % 4 != 0) {
         return false;
     } else if (year % 100 != 0) {
@@ -109,7 +93,7 @@ bool GTLib::is_leap_year(int year) const {
 }
 
 
-Dictionary GTLib::time_from_ms(int time_ms) const {
+Dictionary GTLib::time_from_ms(int time_ms) {
     int seconds = (int)time_ms / 1000 % 60;
     int minutes = (int)time_ms / 60000 % 60;
     int hours = (int)time_ms / 3600000;
@@ -123,7 +107,7 @@ Dictionary GTLib::time_from_ms(int time_ms) const {
 }
 
 
-Dictionary GTLib::time_difference_24h(String time_1, String time_2) const {
+Dictionary GTLib::time_difference_24h(String time_1, String time_2) {
     Array time_split_1 = time_1.split(":");
     Array time_split_2 = time_2.split(":");
 
@@ -150,7 +134,7 @@ Dictionary GTLib::time_difference_24h(String time_1, String time_2) const {
 }
 
 
-String GTLib::markdown_to_bbcode(String markdown) const {
+String GTLib::markdown_to_bbcode(String markdown, int heading_size, int heading_decrease) {
     Dictionary rules;
     // center: <center> -> [center]
     rules["\\<center>(.+)\\<\\/center>"] = "[center]$1[/center]";
@@ -174,25 +158,26 @@ String GTLib::markdown_to_bbcode(String markdown) const {
     // code: `text` -> [code]text[/code]
     rules["`(.+)`"] = "[code]$1[/code]";
     // heading 3: ### text -> [font_size=30]text[/font_size]
-    rules["(?m)^### (.+?)(\\n|$)"] = "[b][font_size=40]$1[/font_size][/b][p][/p]";
+    rules["(?m)^### (.+?)(\\n|$)"] = String("[b][font_size={0}]$1[/font_size][/b][p][/p]").format(Array::make(heading_size - (heading_decrease * 2)));
     // heading 2: ## text -> [font_size=35]text[/font_size]
-    rules["(?m)^## (.+?)(\\n|$)"] = "[b][font_size=45]$1[/font_size][/b][p][/p]";
+    rules["(?m)^## (.+?)(\\n|$)"] = String("[b][font_size={0}]$1[/font_size][/b][p][/p]").format(Array::make(heading_size - heading_decrease));
     // heading 1: # text -> [font_size=40]text[/font_size]
-    rules["(?m)^# (.+?)(\\n|$)"] = "[b][font_size=50]$1[/font_size][/b][p][/p]";
+    rules["(?m)^# (.+?)(\\n|$)"] = String("[b][font_size={0}]$1[/font_size][/b][p][/p]").format(Array::make(heading_size));
     // newlines
     rules["\\\\\\s*([^\n]+)$"] = "[p]$1[/p]";
     // replace newlines with tabs
     rules["\\\n"] = " ";
 
-
     for (int i = 0; i < rules.size(); i++) {
         String key = Array(rules.keys())[i];
-        Ref<RegEx> regex = memnew(RegEx);
+        Ref<RegEx> regex = memnew(RegEx());
         int err = regex->compile(key);
+
         if (err != OK) {
             UtilityFunctions::printerr("error while compiling!");
             return markdown;
         }
+
         markdown = regex->sub(markdown, rules[key], true);
     }
 
@@ -200,18 +185,18 @@ String GTLib::markdown_to_bbcode(String markdown) const {
 }
 
 
-bool GTLib::is_upper(String character) const {
+bool GTLib::is_upper(String character) {
     String ch = String::chr(character[0]);
     return (ch.to_upper() == ch);
 }
 
 
-Color GTLib::rgb_to_normalized(int red, int green, int blue, float alpha) const {
+Color GTLib::rgb_to_normalized(int red, int green, int blue, float alpha) {
     return Color((float)red / 255, (float)green / 255, (float)blue / 255, alpha);
 }
 
 
-PackedVector2Array GTLib::get_available_resolutions(bool follow_project_size) const {
+PackedVector2Array GTLib::get_available_resolutions(bool follow_project_size) {
     Vector2 display = Vector2(DisplayServer::get_singleton()->screen_get_size());
     PackedVector2Array resolutions = {};
 
@@ -255,7 +240,7 @@ PackedVector2Array GTLib::get_available_resolutions(bool follow_project_size) co
 }
 
 
-Ref<ImageTexture> GTLib::img_to_texture(String img_path) const {
+Ref<ImageTexture> GTLib::img_to_texture(String img_path) {
     if (FileAccess::file_exists(img_path)) {
         Ref<Image> image = memnew(Image);
         image->load(img_path);
@@ -263,6 +248,7 @@ Ref<ImageTexture> GTLib::img_to_texture(String img_path) const {
         Ref<ImageTexture> texture = memnew(ImageTexture);
         texture->set_image(image);
 
+        
         return texture;
     } else {
         UtilityFunctions::printerr(String("{0} is invalid").format(Array::make(img_path)));
@@ -271,24 +257,28 @@ Ref<ImageTexture> GTLib::img_to_texture(String img_path) const {
 }
 
 
-int GTLib::random_number(int min, int max, PackedInt32Array exceptions) const {
+int GTLib::random_number(int min, int max, PackedInt32Array exceptions) {
     exceptions = _remove_repeated(exceptions);
+
     if (exceptions.size() >= (max - min + 1)) {
         UtilityFunctions::printerr("'exceptions' contains all values that can be possibly generated, skipping exceptions...");
         return random_number(min, max);
     }
+
     int id = UtilityFunctions::randi_range(min,max);
     return (exceptions.has(id)) ? random_number(min,max,exceptions) : id;
 }
 
 
-String GTLib::slugify(String string, String delimiter, Dictionary extend) const {
+String GTLib::slugify(String string, String delimiter, Dictionary extend) {
     int index = 0;
     String result = "";
     PackedStringArray available = {};
+
     for (int i = 97; i < 123; i++) {
         available.append(String::chr(i));
     }
+
     for (int i = 48; i < 58; i++) {
         available.append(String::chr(i));
     } 
@@ -299,10 +289,9 @@ String GTLib::slugify(String string, String delimiter, Dictionary extend) const 
             index++;
             continue;
         }
+
         if (extend.has(String::chr(string[index]))) {
-            //UtilityFunctions::print("found extended");
             if (!_are_in(String::chr(string[index]), extend, available)) {
-                //UtilityFunctions::print("skipping);
                 index++;
                 continue;
             }
@@ -311,6 +300,7 @@ String GTLib::slugify(String string, String delimiter, Dictionary extend) const 
             index++;
             continue;
         }
+
         if (!available.has(String::chr(string[index]))) {
             if (available.has(String::chr(string[index]).to_lower())) {
                 result += String::chr(string[index]).to_lower();
@@ -321,6 +311,7 @@ String GTLib::slugify(String string, String delimiter, Dictionary extend) const 
                 continue;
             }
         }
+
         result += String::chr(string[index]);
         index++;
     }
@@ -358,8 +349,7 @@ void GTLib::set_mouse_filter_recursive(Control *node, Control::MouseFilter filte
 }
 
 
-String GTLib::bbcode_to_markdown(String bbcode, String lang) const {
-
+String GTLib::bbcode_to_markdown(String bbcode, String lang) {
     Dictionary rules;
     // center: [center] -> <center>
     rules["\\[center](.+)\\[\\/center]"] = "<center>$1</center>";
@@ -387,10 +377,12 @@ String GTLib::bbcode_to_markdown(String bbcode, String lang) const {
         String key = Array(rules.keys())[i];
         Ref<RegEx> regex = memnew(RegEx);
         int err = regex->compile(key);
+
         if (err != OK) {
             UtilityFunctions::printerr("error while compiling!");
             return bbcode;
         }
+
         bbcode = regex->sub(bbcode, rules[key], true);
 
     }
@@ -402,6 +394,7 @@ String GTLib::bbcode_to_markdown(String bbcode, String lang) const {
 Node* GTLib::node(String path, Node *starting_node) {
     PackedStringArray nodes = path.split(" > ");
     Node *prev_node = starting_node;
+
     for (int i = 0; i < nodes.size(); i++) {
         if (prev_node) {
             prev_node = prev_node->get_node_or_null(nodes[i]);
@@ -413,11 +406,12 @@ Node* GTLib::node(String path, Node *starting_node) {
             return nullptr;
         }
     }
+
     return prev_node;
 }
 
 
-int GTLib::text_distance(String string_1, String string_2) const {
+int GTLib::text_distance(String string_1, String string_2) {
     int length1 = string_1.length();
     int length2 = string_2.length();
 
@@ -438,24 +432,27 @@ int GTLib::text_distance(String string_1, String string_2) const {
                 );
             }
         }
+
         prev_row = current_row.duplicate();
     }
+
     return current_row[length2];
 }
 
 
 // private methods
-bool GTLib::_is_type(Node *node, PackedStringArray exceptions) const {
+bool GTLib::_is_type(Node *node, PackedStringArray exceptions){
     for (int e = 0; e < exceptions.size(); e++) {
         if (node->get_class() == exceptions[e]) {
             return true;
         }
     }
+
     return false;
 }
 
 
-bool GTLib::_are_in(String string, Dictionary dict, PackedStringArray array) const {
+bool GTLib::_are_in(String string, Dictionary dict, PackedStringArray array){
     Array value = dict[string];
 
     for (int i = 0; i < value.size(); i++) {
@@ -471,12 +468,12 @@ bool GTLib::_are_in(String string, Dictionary dict, PackedStringArray array) con
 }
 
 
-PackedInt32Array GTLib::_range(int end) const {
+PackedInt32Array GTLib::_range(int end){
     return _range(0, end);
 }
 
 
-PackedInt32Array GTLib::_range(int start, int end) const {
+PackedInt32Array GTLib::_range(int start, int end){
     Array result;
 
     for (int i = start; i < end; i++) {
@@ -487,8 +484,9 @@ PackedInt32Array GTLib::_range(int start, int end) const {
 }
 
 
-PackedInt32Array GTLib::_remove_repeated(PackedInt32Array array) const {
+PackedInt32Array GTLib::_remove_repeated(PackedInt32Array array){
     PackedInt32Array result = {};
+    
     for (int i = 0; i < array.size(); i++) {
         if (result.has(array[i])) {
             continue;
@@ -506,6 +504,28 @@ GTLib::GTLib() {
     _playback = 0;
 }
 
+
 GTLib::~GTLib() {
     _playback = 0;
+}
+
+
+// methods
+void GTLib::_bind_methods() {
+    ClassDB::bind_method(D_METHOD("date_difference_iso_8601", "date_1", "date_2"), &GTLib::date_difference_iso_8601);
+    ClassDB::bind_method(D_METHOD("time_from_ms", "time_ms"), &GTLib::time_from_ms);
+    ClassDB::bind_method(D_METHOD("time_difference_24h", "time_1", "time_2"), &GTLib::time_difference_24h);
+    ClassDB::bind_method(D_METHOD("markdown_to_bbcode", "markdown", "heading_size", "heading_decreaser"), &GTLib::markdown_to_bbcode, DEFVAL(50), DEFVAL(5));
+    ClassDB::bind_method(D_METHOD("is_upper", "character"), &GTLib::is_upper);
+    ClassDB::bind_method(D_METHOD("rgb_to_normalized", "red", "green", "blue", "alpha"), &GTLib::rgb_to_normalized, DEFVAL(1.0));
+    ClassDB::bind_method(D_METHOD("get_available_resolutions", "follow_project_size"), &GTLib::get_available_resolutions, DEFVAL(false));
+    ClassDB::bind_method(D_METHOD("img_to_texture", "img_path"), &GTLib::img_to_texture);
+    ClassDB::bind_method(D_METHOD("random_number", "min", "max", "exceptions"), &GTLib::random_number, DEFVAL(Array()));
+    ClassDB::bind_method(D_METHOD("slugify", "string", "delimiter", "extend"), &GTLib::slugify, DEFVAL("-"), DEFVAL(Dictionary()));
+    ClassDB::bind_method(D_METHOD("set_mouse_filter_recursive", "node", "filter", "children", "exceptions"), &GTLib::set_mouse_filter_recursive, DEFVAL(false), DEFVAL(PackedStringArray()));
+    ClassDB::bind_method(D_METHOD("bbcode_to_markdown", "bbcode", "lang"), &GTLib::bbcode_to_markdown, DEFVAL(""));
+    ClassDB::bind_method(D_METHOD("node", "path", "starting_node"), &GTLib::node);
+    ClassDB::bind_method(D_METHOD("text_distance", "string_1", "string_2"), &GTLib::text_distance);
+    ClassDB::bind_method(D_METHOD("get_days_in_month", "month", "year"), &GTLib::get_days_in_month);
+    ClassDB::bind_method(D_METHOD("is_leap_year", "year"), &GTLib::is_leap_year);
 }
