@@ -50,7 +50,6 @@ Dictionary GTLib::date_difference_iso_8601(String date_1, String date_2) {
 
     int days = (unix_2 - unix_1) / 86400;
     int years = (int)days / 365;
-    //int years = (int)date_2_dict["year"] - (int)date_1_dict["year"];
     int months = (int)days / 30.436768;
     int weeks = days / 7;
 
@@ -170,7 +169,7 @@ String GTLib::markdown_to_bbcode(String markdown, int heading_size, int heading_
 
     for (int i = 0; i < rules.size(); i++) {
         String key = Array(rules.keys())[i];
-        Ref<RegEx> regex = memnew(RegEx());
+        Ref<RegEx> regex = memnew(RegEx);
         int err = regex->compile(key);
 
         if (err != OK) {
