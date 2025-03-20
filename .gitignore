@@ -45,6 +45,7 @@ compile_commands.json
 # Binaries
 *.o
 *.os
+*.so
 *.obj
 *.bc
 *.pyc
