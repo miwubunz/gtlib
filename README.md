@@ -3,7 +3,7 @@ A custom Godot class containing methods to make certain tasks easier.
 
 ## installation
 to use GTLib in your project:
-- download the latest release under the releases tab, download and copy `gtlib` to the `addons` folder in your project directory.
+- download the latest release under the releases tab, download, extract and copy `gtlib` to the `addons` folder in your project directory.
 
 ## usage
 create an instance of GTLib in any script where you want to use it.
