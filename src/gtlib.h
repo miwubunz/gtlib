@@ -41,7 +41,7 @@ public:
     PackedInt32Array _range(int start, int end);
     PackedInt32Array _remove_repeated(PackedInt32Array array);
 
-    //ructor
+    // constructor
     GTLib();
     ~GTLib();
 
